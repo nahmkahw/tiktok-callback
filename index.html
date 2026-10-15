@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Namkhao Publisher — TikTok authorization</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #222; }
+  textarea { width: 100%; font-family: ui-monospace, monospace; font-size: 0.9rem; padding: .5rem; }
+  button { font-size: 1rem; padding: .5rem 1rem; margin-top: .5rem; cursor: pointer; }
+  .err { color: #b00020; }
+  footer { margin-top: 3rem; font-size: .85rem; color: #666; }
+</style>
+</head>
+<body>
+<h1>Namkhao Publisher</h1>
+<div id="out"><p>ไม่มีรหัสอนุญาตในลิงก์นี้ — No authorization code in this link.</p></div>
+<footer><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms of Service</a></footer>
+<script>
+  const q = new URLSearchParams(location.search);
+  const out = document.getElementById("out");
+  const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  if (q.get("error")) {
+    out.innerHTML = `<p class="err">TikTok ไม่อนุญาต: ${esc(q.get("error"))} ${esc(q.get("error_description") || "")}</p>`;
+  } else if (q.get("code")) {
+    const cmd = `/tiktok ${q.get("code")} ${q.get("state") || ""}`.trim();
+    out.innerHTML = `<p>คัดลอกข้อความด้านล่าง แล้วส่งใน news bot ภายในไม่กี่นาที (รหัสหมดอายุเร็ว)<br>
+      Copy the line below and send it to the news bot within a few minutes.</p>
+      <textarea id="cmd" rows="4" readonly>${esc(cmd)}</textarea>
+      <button id="copy">คัดลอก / Copy</button>`;
+    document.getElementById("copy").onclick = async () => {
+      await navigator.clipboard.writeText(cmd);
+      document.getElementById("copy").textContent = "คัดลอกแล้ว ✓";
+    };
+  }
+</script>
+</body>
+</html>
